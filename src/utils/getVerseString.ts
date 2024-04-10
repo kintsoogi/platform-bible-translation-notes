@@ -27,6 +27,7 @@ function stripUSFM(usfm: string) {
     .trim();
 }
 
+// TODO: For some reason, this is not working
 export const getVerseString = () => {
   // Get the first project ID we can find
   const [ projectId ] = usePromise(
