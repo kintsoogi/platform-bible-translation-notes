@@ -1,0 +1,19 @@
+div {
+  background-color: #ffffff; /* White background for material design */
+  padding: 16px; /* Material design padding */
+  border-radius: 4px; /* Material design rounded corners */
+  font-family: 'Roboto', 'Helvetica', 'Arial', sans-serif; /* Material design font */
+  color: #212121; /* Material design text color */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Material design shadow for depth */
+  max-width: 100%; /* Responsive max width */
+  margin: 20px auto; /* Centering the div */
+  text-align: center; /* Center text alignment */
+
+  @media (min-width: 600px) {
+    max-width: 80%; /* Adjusting max width for larger screens */
+  }
+
+  @media (min-width: 900px) {
+    max-width: 60%; /* Adjusting max width for even larger screens */
+  }
+}
