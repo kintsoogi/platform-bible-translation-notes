@@ -38,6 +38,28 @@
 
 4. Use the `useProjectData` hook to retrieve the verse information from the project given the project ID.
 
+## Accessing Files
+
+The biggest change when transferring my vscode extension into a paranext extension is that the way to 
+access a file is different. 
+- In vscode I could make my extension a custom editor, and this would allow 
+and files with `.md` extension to open my extension's webview.
+
+When I asked in the paranext discord about how to do this, here was the response I received:
+
+>  I see a few options, and the one you should choose probably depends on your needs. **First, though, a  limitation: we currently do not offer a way to access arbitrary file system locations outside of your extension's files.** For example, node's fs package cannot be imported. We are considering opening the option if an extension specifically requests access, in which case we can mark that extension as needing higher privileges in the marketplace (or whatever we end up doing), but we don't have anything like that currently. As such, you'll have to access files in one of two ways: 
+
+> (For reference, [here is a link to papi.storage documentation](https://paranext.github.io/paranext-core/papi-dts/interfaces/_extension_host_services_extension_storage_service_.ExtensionStorageService.html). I will be discussing it at length. If you want to get there yourself, go to the paranext-core repo, click [its linked website](https://paranext.github.io/paranext-core/), click papi-dts, click @papi/backend, click storage, then click ExtensionStorageService)
+
+> 1. **If you are able to bundle your files in at build time** (for example, if you have one or a few sets of specific files that can be freely distributed to all users who have the extension), **you can include your files in your extension's assets folder and load them into your backend with `papi.storage.readText.FileFromInstallDirectory` (there's also a binary version).** [Here's an example](https://github.com/paranext/paranext-core/blob/850-resource-viewer-images-fix/extensions/src/quick-verse/src/main.ts#L281) of doing that in one of our test extensions 🙂 Note you can actually load files from anywhere in your extension bundle, but you have to [make sure webpack copies the files over into the built folder](https://github.com/paranext/paranext-extension-template/blob/main/webpack/webpack.config.main.ts#L50). It copies assets by default
+> 2. **If the files are not a few specific files or only certain users have access to some files, you can hit an internet API serving those files and save them in your extension's user data storage** (basically a per-extension key/value storage that abstracts the file system away) **with `papi.storage.readUserData` and `papi.stoarge.writeUserData`.** [Here's an example](https://github.com/paranext/paranext-core/blob/850-resource-viewer-images-fix/extensions/src/quick-verse/src/main.ts#L290) from the same test extension 🙂
+
+> I would also be glad to discuss how to serve that data to your frontend if you'd like! There are many ways to do this such as commands, data provider, project data provider, etc. There's some documentation on those things [here](https://github.com/paranext/paranext-extension-template/wiki/Extension-Anatomy)
+
+### Ideas for Translation Notes
+
+Based on this feeback, since we need to keep things offline, we will go with the first method. 
+
 ## Comparing to Vscode Extension Development
 
 ### Similarities
@@ -62,3 +84,6 @@
 ### Problems
 
 - It seems like the "Your First Extension" wiki is not up to date, as it does not use @papi imports.
+
+
+
