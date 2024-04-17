@@ -1,5 +1,5 @@
 import papi, { logger } from '@papi/backend';
-import type { ExecutionActivationContext, IWebViewProvider } from '@papi/core';
+import type { ExecutionActivationContext, IWebViewProvider, ExecutionToken } from '@papi/core';
 import webViewContent from './tn.web-view?inline';
 import webViewContentStyle from './tn.web-view.scss?inline';
 
@@ -24,6 +24,16 @@ export async function activate(context: ExecutionActivationContext) {
   //     return Promise;
   //   },
   // );
+
+  const token: ExecutionToken = context.executionToken;
+  const tnFile: string = await papi.storage.readTextFileFromInstallDirectory(
+    token,
+    'assets/en_tn/tn_TIT.tsv',
+  );
+  console.log(tnFile)
+
+  // TODO: Now we take the file text and serve it to the frontend
+  
 
   // Register the web view provider
   const webViewPromise = papi.webViewProviders.register('translationNotes.view', webViewProvider);

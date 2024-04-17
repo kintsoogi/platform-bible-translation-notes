@@ -75,6 +75,7 @@ Based on this feeback, since we need to keep things offline, we will go with the
 - The `useWebViewState` function is different than keeping track of state in vscode.
   - Do I like it better or worse? It seems more intuitive to react, but also seems to focus us in on React.
   - Seems like local storage?
+- The debugging process is much more frustrating
 
 ### Questions
 
