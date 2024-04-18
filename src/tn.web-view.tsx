@@ -1,37 +1,9 @@
-import React, { useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { WebViewProps } from '@papi/core';
 import TranslationNoteScroller from './components/TranslationNoteScroller'; 
-import { TranslationNoteType } from './types/TsvTypes';
+import { TnTSV, TranslationNoteType } from './types/TsvTypes';
+import papi from '@papi/frontend';
 
-const translationNotes: TranslationNoteType[] = [
-    {
-      Reference: "1:1",
-      ID: "a1b2",
-      Tags: "important, keyword",
-      SupportReference: "sc-ttdg/dsfa/dsafsd/asdf",
-      Quote: "Ἐν ἀρχῇ",
-      Occurrence: "1",
-      Note: "This is a significant note for translation."
-    },
-    {
-      Reference: "1:1",
-      ID: "a1b2",
-      Tags: "important, keyword",
-      SupportReference: "sc-ttdg/dsfa/dsafsd/asdf",
-      Quote: "Ἐν ἀρχῇ",
-      Occurrence: "1",
-      Note: "This is a significant note for translation. This is a significant note for translation. This is a significant note for translation. This is a significant note for translation. This is a significant note for translation. This is a significant note for translation. This is a significant note for translation. This is a significant note for translation. "
-    },
-    {
-      Reference: "1:1",
-      ID: "a1b2",
-      Tags: "important, keyword",
-      SupportReference: "sc-ttdg/dsfa/dsafsd/asdf",
-      Quote: "Ἐν ἀρχῇ",
-      Occurrence: "1",
-      Note: "This is a significant note for translation."
-    },
-  ]
 
 const TranslationNotesWebview: React.FunctionComponent<WebViewProps> = ({ useWebViewState }: WebViewProps) => {
   // TODO: If I want to call a command
@@ -39,24 +11,47 @@ const TranslationNotesWebview: React.FunctionComponent<WebViewProps> = ({ useWeb
 
   // TODO: Get the BCV from the platform. Did not work... so reach out to someone
 
-  const [noteIndex, setNoteIndex] = useState<number>(0);
+  const [noteIndex, setNoteIndex] = useWebViewState<number>('noteIndex', 0);
+  const [translationNotes, setTranslationNotes] = useWebViewState<TnTSV>('translationNotes', {})
+  const [isLoading, setIsLoading] = useState(true)
 
-  const incrementNoteIndex = () =>
-      setNoteIndex((prevIndex) =>
-          prevIndex < translationNotes.length - 1
-              ? prevIndex + 1
-              : prevIndex,
-      );
-  const decrementNoteIndex = () =>
-      setNoteIndex((prevIndex) =>
-          prevIndex > 0 ? prevIndex - 1 : prevIndex,
-      );
+  useEffect(() => {
+    const getTnData = async () => {
+      try {
+        setIsLoading(true);
+        const data = await papi.commands.sendCommand('translationNotes.openBookNotes');
+        setTranslationNotes(data)
+      } catch (error) {
+        console.error('Failed to fetch translation notes:', error);
+      } finally {
+        setIsLoading(false); 
+      }
+    };
+
+    getTnData();
+  }, [])
   
+  const incrementNoteIndex = () => {
+      const isIndexInBound = noteIndex < translationNotes?.[1]?.[1].length - 1
+      const newIndex = isIndexInBound ? noteIndex + 1 : noteIndex;
+      setNoteIndex(newIndex);
+  }
+
+  const decrementNoteIndex = () => {
+      const newIndex = noteIndex > 0 ? noteIndex - 1 : noteIndex;
+      setNoteIndex(newIndex);
+  }
+
+  if (isLoading) {
+    return (
+      <div>Loading...</div>
+    )
+  }
 
   return (
     <div>
       <TranslationNoteScroller 
-        notes={translationNotes}
+        notes={translationNotes?.[1]?.[1]}
         currentIndex={noteIndex}
         incrementIndex={incrementNoteIndex}
         decrementIndex={decrementNoteIndex}

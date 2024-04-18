@@ -2,6 +2,8 @@ import papi, { logger } from '@papi/backend';
 import type { ExecutionActivationContext, IWebViewProvider, ExecutionToken } from '@papi/core';
 import webViewContent from './tn.web-view?inline';
 import webViewContentStyle from './tn.web-view.scss?inline';
+import { tsvStringToScriptureTSV } from './utils/tsvFileConversions';
+import { TnTSV } from './types/TsvTypes';
 
 const webViewProvider: IWebViewProvider = {
   async getWebView(savedWebView) {
@@ -14,6 +16,14 @@ const webViewProvider: IWebViewProvider = {
   },
 };
 
+async function getTranslationNotesData(token: ExecutionToken) {
+  const tnTsvString: string = await papi.storage.readTextFileFromInstallDirectory(
+    token,
+    'assets/en_tn/tn_TIT.tsv',
+  );
+  return tsvStringToScriptureTSV(tnTsvString) as TnTSV
+}
+
 export async function activate(context: ExecutionActivationContext) {
   logger.info('Translation Notes are activating!');
 
@@ -25,12 +35,16 @@ export async function activate(context: ExecutionActivationContext) {
   //   },
   // );
 
-  const token: ExecutionToken = context.executionToken;
-  const tnFile: string = await papi.storage.readTextFileFromInstallDirectory(
-    token,
-    'assets/en_tn/tn_TIT.tsv',
+
+  // Register command to generate images for a prompt
+  const translationNotesPromise = papi.commands.registerCommand(
+    'translationNotes.openBookNotes',
+    async () => {
+      // TODO: Get BCV!
+      return getTranslationNotesData(context.executionToken)
+    },
   );
-  console.log(tnFile)
+
 
   // TODO: Now we take the file text and serve it to the frontend
   
@@ -43,7 +57,7 @@ export async function activate(context: ExecutionActivationContext) {
 
   // Set up registered extension features to be unregistered when deactivating the extension.
   // TODO: Set up command registration
-  context.registrations.add(await webViewPromise /*, await commandPromise*/);
+  context.registrations.add(await webViewPromise , await translationNotesPromise);
 }
 
 export async function deactivate() {
