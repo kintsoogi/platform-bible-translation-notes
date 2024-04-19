@@ -4,6 +4,7 @@ import webViewContent from './tn.web-view?inline';
 import webViewContentStyle from './tn.web-view.scss?inline';
 import { tsvStringToScriptureTSV } from './utils/tsvFileConversions';
 import { TnTSV } from './types/TsvTypes';
+import { bookNumTnTsvMap } from './utils/bookNumTnTsvMap';
 
 const webViewProvider: IWebViewProvider = {
   async getWebView(savedWebView) {
@@ -16,38 +17,24 @@ const webViewProvider: IWebViewProvider = {
   },
 };
 
-async function getTranslationNotesData(token: ExecutionToken) {
+async function getTranslationNotesData(token: ExecutionToken, bookNum: number) {
+  const tsvFileName = bookNumTnTsvMap[bookNum];
   const tnTsvString: string = await papi.storage.readTextFileFromInstallDirectory(
     token,
-    'assets/en_tn/tn_TIT.tsv',
+    `assets/en_tn/${tsvFileName}`,
   );
-  return tsvStringToScriptureTSV(tnTsvString) as TnTSV
+  return tsvStringToScriptureTSV(tnTsvString) as TnTSV;
 }
 
 export async function activate(context: ExecutionActivationContext) {
   logger.info('Translation Notes are activating!');
 
-  // TODO: If you want to add a command
-  // const commandPromise = papi.commands.registerCommand(
-  //   'verseImageGenerator.generateImages',
-  //   async () => {
-  //     return Promise;
-  //   },
-  // );
-
-
-  // Register command to generate images for a prompt
   const translationNotesPromise = papi.commands.registerCommand(
     'translationNotes.openBookNotes',
-    async () => {
-      // TODO: Get BCV!
-      return getTranslationNotesData(context.executionToken)
+    async (bookNum: number) => {
+      return getTranslationNotesData(context.executionToken, bookNum);
     },
   );
-
-
-  // TODO: Now we take the file text and serve it to the frontend
-  
 
   // Register the web view provider
   const webViewPromise = papi.webViewProviders.register('translationNotes.view', webViewProvider);
@@ -57,7 +44,7 @@ export async function activate(context: ExecutionActivationContext) {
 
   // Set up registered extension features to be unregistered when deactivating the extension.
   // TODO: Set up command registration
-  context.registrations.add(await webViewPromise , await translationNotesPromise);
+  context.registrations.add(await webViewPromise, await translationNotesPromise);
 }
 
 export async function deactivate() {

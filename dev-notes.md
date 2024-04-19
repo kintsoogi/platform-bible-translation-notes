@@ -38,6 +38,26 @@
 
 4. Use the `useProjectData` hook to retrieve the verse information from the project given the project ID.
 
+### Implementing for Translation Notes
+
+I don't need to get the actual verse data in my extension. Instead, I just need to access the current book, chapter, and verse.
+
+So, I will just need to use the `useSetting` hook to get the current book, chapter and verse!
+
+1. Create a default scripture reference
+
+2. Call `useSetting` hook using default scripture ref to get platform current book, chapter, verse
+
+    ```ts
+    const defaultScrRef: ScriptureReference = { bookNum: 1, chapterNum: 1, verseNum: 1 };
+
+    const [scrRef] = useSetting('platform.verseRef', defaultScrRef);
+    ```
+
+3. Call the `openBookNotes` command with the current book
+
+4. Retrieve TN file based on the book and pass it back to the webview!
+
 ## Accessing Files
 
 The biggest change when transferring my vscode extension into a paranext extension is that the way to 
@@ -56,9 +76,40 @@ When I asked in the paranext discord about how to do this, here was the response
 
 > I would also be glad to discuss how to serve that data to your frontend if you'd like! There are many ways to do this such as commands, data provider, project data provider, etc. There's some documentation on those things [here](https://github.com/paranext/paranext-extension-template/wiki/Extension-Anatomy)
 
-### Ideas for Translation Notes
+### Implementing for Translation Notes
 
 Based on this feeback, since we need to keep things offline, we will go with the first method. 
+
+The process was pretty easy and more similar to VSCODE than I expected. 
+
+1. Loaded TN .tsv files into the assets folder under `en_tn` folder
+
+2. Retrieve an execution token from the platform
+
+3. Call `papi.storage.readTextFileFromInstallDirectory` and directly get file text string!
+
+4. Transform text string to TN data object
+
+    ```ts
+    async function getTranslationNotesData(token: ExecutionToken) {
+      const tnTsvString: string = await papi.storage.readTextFileFromInstallDirectory(
+        token,
+        'assets/en_tn/tn_TIT.tsv',
+      );
+      return tsvStringToScriptureTSV(tnTsvString) as TnTSV
+    }
+    ```
+
+5. Pass TN Data object to frontend using a command (very similar process to VSCode)
+
+    ```ts
+    const translationNotesPromise = papi.commands.registerCommand(
+      'translationNotes.openBookNotes',
+      async () => {
+        return getTranslationNotesData(context.executionToken)
+      },
+    );
+    ```
 
 ## Comparing to Vscode Extension Development
 

@@ -1,4 +1,4 @@
-import { TnTSV } from "./TsvTypes";
+import { TnTSV } from './TsvTypes';
 
 declare module 'platform-bible-translation-notes' {
   // Add extension types exposed on the papi for other extensions to use here
@@ -10,10 +10,10 @@ declare module 'papi-shared-types' {
     /**
      * Given a BCV
      *
-     * @todo Implement BCV input
      * @param prompt Prompt for generating images
      * @returns Array of urls for the generated images
+     * @todo Implement BCV input
      */
-    'translationNotes.openBookNotes': () => Promise<TnTSV>;
+    'translationNotes.openBookNotes': (bookNum: number) => Promise<TnTSV>;
   }
 }
