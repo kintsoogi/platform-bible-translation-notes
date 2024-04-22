@@ -58,7 +58,7 @@ So, I will just need to use the `useSetting` hook to get the current book, chapt
 
 4. Retrieve TN file based on the book and pass it back to the webview!
 
-## Accessing Files
+## Accessing Files (Mimicking Custom Editor Reading)
 
 The biggest change when transferring my vscode extension into a paranext extension is that the way to 
 access a file is different. 
@@ -126,12 +126,17 @@ The process was pretty easy and more similar to VSCODE than I expected.
 - The `useWebViewState` function is different than keeping track of state in vscode.
   - Do I like it better or worse? It seems more intuitive to react, but also seems to focus us in on React.
   - Seems like local storage?
-- The debugging process is much more frustrating
+- The debugging process is a little more frustrating. However, it can be found in the wiki.
+- It seems like the only way to make a webview is using React. This is great for our use cases but is less flexible than VSCode. 
+- Using the UI elements is different than using VSCode UI elements. There is not much documentation, BUT they are basically used just like Material-UI elements, and there is plenty of documentation there. 
+- **Most platform and cross-extenstion communication happens through PAPI**. 
+    - I found the process of reading a file to be easier than using a custom editor in vscdode.
+    - I also found the command communication to be a little bit easier than vscode. 
+    - They have API documentation for PAPI, but it would be beneficial to have more use-case examples.  
 
 ### Questions
 
-- My extension uses a custom editor to directly talk to, display, and edit a file. Does platform.bible support this?
-- Is there an easy way to debug our code?
+- 
 
 ### Problems
 
